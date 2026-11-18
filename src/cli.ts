@@ -1,4 +1,6 @@
 import { Command } from "commander";
+import { createRequire } from "node:module";
+const { version } = createRequire(import.meta.url)("../package.json") as { version: string };
 import { readFile, writeFile } from "node:fs/promises";
 import { stdin, stdout, stderr } from "node:process";
 import { resolve } from "node:path";
@@ -24,7 +26,7 @@ export async function main(args: string[]): Promise<void> {
     .option("-t, --type <types>", "Filter protocols, comma-separated (e.g. vless,vmess)")
     .option("-o, --output <file>", "Write output to a file instead of stdout")
     .option("-f, --format <format>", "Output format: text or json", "text")
-    .version("0.1.0").parse(args, { from: "user" });
+    .version(version).parse(args, { from: "user" });
   const options = program.opts<{type?: string; output?: string; format: OutputFormat}>();
   if (options.format !== "text" && options.format !== "json") throw new Error("格式必须是 text 或 json");
   const file = program.args[0];

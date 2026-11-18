@@ -1,5 +1,5 @@
 {
-  "name": "clash-link-cli",
+  "name": "clash-link",
   "version": "0.1.0",
   "description": "Convert Clash YAML proxy nodes into shareable URI links",
   "license": "GPL-3.0-only",
@@ -8,12 +8,13 @@
     "clash-link": "bin/clash-link.mjs"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=20.0.0"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "vitest run",
-    "prepack": "npm run build"
+    "prepack": "npm run build",
+    "package:check": "node scripts/check-package.mjs"
   },
   "dependencies": {
     "commander": "^14.0.0",
@@ -24,5 +25,21 @@
     "@types/node": "^22.0.0",
     "typescript": "^5.9.3",
     "vitest": "^3.2.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/onewesong/clash-link-cli.git"
+  },
+  "homepage": "https://github.com/onewesong/clash-link-cli#readme",
+  "bugs": {
+    "url": "https://github.com/onewesong/clash-link-cli/issues"
+  },
+  "files": [
+    "bin/",
+    "dist/"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   }
 }

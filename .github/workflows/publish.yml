@@ -1,0 +1,45 @@
+name: Publish to npm
+run-name: Publish clash-link from ${{ github.ref_name }}
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+permissions:
+  contents: read
+concurrency:
+  group: npm-publish
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: github.event_name == 'workflow_dispatch' || !github.event.release.prerelease
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - name: Validate release identity
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          node --input-type=module <<'JS'
+          import { readFileSync } from 'node:fs';
+          const pkg = JSON.parse(readFileSync('package.json', 'utf8'));
+          if (pkg.name !== 'clash-link') throw new Error('Expected package name clash-link');
+          if (pkg.version.includes('-')) throw new Error('This workflow publishes stable versions only');
+          if (process.env.RELEASE_TAG && process.env.RELEASE_TAG !== `v${pkg.version}`) {
+            throw new Error(`Release tag must be v${pkg.version}`);
+          }
+          if (process.env.GITHUB_EVENT_NAME === 'workflow_dispatch' && process.env.GITHUB_REF !== 'refs/heads/main') {
+            throw new Error('Run manual publishing from main');
+          }
+          JS
+      - run: npm ci
+      - run: npm test
+      - run: npm run package:check
+      - name: Publish with npm trusted publishing
+        run: npm publish --access public
